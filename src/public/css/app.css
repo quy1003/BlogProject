@@ -1,7 +1,11 @@
-.test {
-  font-size: 1rem;
-  background-color: red;
-  width: 100px; }
+.card-blog-item {
+  margin-top: 16px;
+  margin-bottom: 1px; }
 
-h1 {
-  color: green; }
+a {
+  text-decoration: none; }
+
+.cb-select-all {
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 20%; }

@@ -1,0 +1,139 @@
+<form class="mt-4" name="container-form" method="post" action="/blogs/handle-form-action">
+  <div>
+    <h2>Blog của tôi</h2>
+    {{#if deletedBlogs}}
+    <a href="/me/trash/blogs">Thùng rác: ({{deletedBlogs}})</a>
+    {{/if}}
+    <div class="mt-4 d-flex align-items-center">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+        <label class="form-check-label" for="flexCheckDefault">
+          Chọn tất cả
+        </label>
+      </div>
+
+      <select id="select-stored-blog" class="form-control form-control-sm cb-select-all"
+        aria-label="Default select example" name="action">
+        <option value="" disabled>- Chọn hành động -</option>
+        <option value="delete" selected>Xoá</option>
+      </select>
+
+      <button id="btn-apply" class="btn btn-primary btn-sm disabled">Thực hiện</button>
+
+    </div>
+  </div>
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">STT</th>
+        <th scope="col">Tên blog
+          {{{sortable 'name' _sort}}}
+        </th>
+        <th scope="col">Thời gian tạo
+          {{{sortable 'createdAt' _sort}}}
+        </th>
+        <th scope="col">Cập nhật
+          {{{sortable 'updatedAt' _sort}}}
+        </th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each blogs}}
+      <tr>
+        <td>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="blogIds[]" value="{{this._id}}" id="">
+          </div>
+        </td>
+        {{!-- Handlebars helpers fnc sum --}}
+        <th scope="row">{{sum @index 1}}</th>
+        <td>{{this.name}}</td>
+        <td>{{this.createdAt}}</td>
+        <td>{{this.updatedAt}}</td>
+        <td>
+          <a href="/blogs/{{this._id}}/edit" class="btn btn-primary">Chỉnh</a>
+        </td>
+        <td>
+          <a href="" class="btn btn-danger" data-id="{{this._id}}" data-bs-toggle="modal"
+            data-bs-target="#delete-blog-modal">X</a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="5" class="text-center">Bạn chưa đăng khoá học nào
+          <a href="/blogs/create">Đăng khoá học</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</form>
+{{!-- Confirm Dlt --}}
+<div id="delete-blog-modal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cảnh báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có muốn xoá không?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        <button id="btn-dlt-blog" type="button" class="btn btn-danger">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{!-- Delete Hidden Form --}}
+<form name="dlt-blog-form" method="post">
+
+</form>
+<script>
+  //Xử lí soft delete
+  var exampleModal = document.getElementById('delete-blog-modal')
+  exampleModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-id')
+    var dltForm = document.forms['dlt-blog-form']
+    var btnDelete = document.getElementById('btn-dlt-blog')
+    btnDelete.onclick = function () {
+      dltForm.action = '/blogs/' + id + '?_method=DELETE'
+      dltForm.submit()
+    }
+  })
+
+
+  //Xử  lí nút checkedbox
+  const checkboxAll = document.getElementById('checkbox-all');
+  const btnApply = document.getElementById('btn-apply');
+  const checkboxItems = document.getElementsByName('blogIds[]');
+
+  function updateApplyButton() {
+    const checkedItems = document.querySelectorAll('input[type="checkbox"]:checked');
+    btnApply.classList.toggle('disabled', checkedItems.length === 0);
+  }
+
+  function handleCheckboxChange() {
+    checkboxAll.checked = [...checkboxItems].every(item => item.checked);
+    updateApplyButton();
+  }
+
+  checkboxAll.onchange = function () {
+    checkboxItems.forEach(item => item.checked = this.checked);
+    updateApplyButton();
+  };
+
+  checkboxItems.forEach(item => item.onchange = handleCheckboxChange);
+
+  //Submit form action
+  var isSubmit = btnApply.classList.contains('disabled')
+  var containerForm = document.getElementsByName('container-form')
+  if(!isSubmit){
+    containerForm.submit()
+  }
+</script>

@@ -1,0 +1,90 @@
+<div class="mt-4">
+  <div>
+    <h2>Thùng rác</h2>
+    <a href="/me/stored/blogs">Danh sách khoá học</a>
+  </div>
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th scope="col">STT</th>
+        <th scope="col">Tên blog</th>
+        <th scope="col">Thời gian xoá</th>
+        <th scope="col">Tuỳ chỉnh</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each blogs}}
+      <tr>
+        {{!-- Handlebars helpers fnc sum --}}
+        <th scope="row">{{sum @index 1}}</th>
+        <td>{{this.name}}</td>
+        <td>{{this.deletedAt}}</td>
+        <td>
+          <a class="btn btn-primary btn-restore" data-id="{{this._id}}">Restore</a>
+          <a href="" class="btn btn-danger" data-id="{{this._id}}" data-bs-toggle="modal"
+            data-bs-target="#delete-blog-modal">X</a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="5" class="text-center">Thùng rác trống
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+{{!-- Confirm Dlt --}}
+<div id="delete-blog-modal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cảnh báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có muốn xoá vĩnh viễn không?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+        <button id="btn-dlt-blog" type="button" class="btn btn-danger">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{!-- Delete Hidden Form --}}
+<form name="dlt-blog-form" method="post">
+</form>
+<form name="restore-blog-form" method="post"></form>
+<script>
+
+  var restoreBtns = document.getElementsByClassName('btn-restore');
+  var restoreForm = document.forms['restore-blog-form']
+  for (var i = 0; i < restoreBtns.length; i++) {
+    restoreBtns[i].onclick = function (e) {
+      const id = this.getAttribute('data-id')
+      restoreForm.action = '/blogs/' + id + '/restore?_method=PATCH'
+      restoreForm.submit()
+    };
+  }
+  //Form restore
+
+  //Lấy ra id của blog cần xoá
+  //Lấy ra form ẩn để gửi req
+  //Bắt sự kiện onclick ở nút xác nhận xoá của modal box
+  //Chỉnh action của form ẩn
+  //Submit form
+  var exampleModal = document.getElementById('delete-blog-modal')
+  exampleModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-id')
+    var dltForm = document.forms['dlt-blog-form']
+    var btnDelete = document.getElementById('btn-dlt-blog')
+    btnDelete.onclick = function () {
+      dltForm.action = '/blogs/' + id + '/force?_method=DELETE'
+      dltForm.submit()
+    }
+
+  })
+</script>
